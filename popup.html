@@ -1,12 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <style>
     /* your styles here */
   </style>
+    <meta charset="UTF-8">
+    <title>Recipe Scraper</title>
 </head>
 <body>
-  <iframe id="iframe" src="https://sethspwa.netlify.app/"></iframe>
-  <script src="popup.js"></script>
+    <input type="url" id="urlInput" placeholder="Paste URL here">
+    <button id="scrapeURL">Scrape URL</button>
+    <button id="scrapeCurrentPage">Scrape Current Page</button>
+    <iframe id="iframe" src="https://sethspwa.netlify.app/"></iframe>
+
+    <script src="popup.js"></script>
 </body>
 </html>
