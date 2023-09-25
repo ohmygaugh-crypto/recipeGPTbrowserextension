@@ -1,16 +1,20 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <style>
-    /* your styles here */
-  </style>
     <meta charset="UTF-8">
     <title>Recipe Scraper</title>
+    <style>
+        /* Add your styles here if needed */
+    </style>
 </head>
 <body>
     <input type="url" id="urlInput" placeholder="Paste URL here">
     <button id="scrapeURL">Scrape URL</button>
     <button id="scrapeCurrentPage">Scrape Current Page</button>
+
+    <!-- Textarea to display the scraped content -->
+    <textarea id="scrapedContent" rows="10" cols="30" readonly></textarea>
+
     <iframe id="iframe" src="https://sethspwa.netlify.app/"></iframe>
 
     <script src="popup.js"></script>
