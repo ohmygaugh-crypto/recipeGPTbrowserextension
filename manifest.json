@@ -1,0 +1,28 @@
+{
+    "manifest_version": 3,
+    "name": "Recipe Extractor",
+    "version": "1.0",
+    "description": "Extracts recipes from food blogs and sends to PWA.",
+    "permissions": ["activeTab", "storage"],
+    "background": {
+      "service_worker": "background.js"
+    },
+    "action": {
+      "default_popup": "popup.html",
+      "default_icon": {
+        "128": "icons/icon128.png"
+      }
+    },
+    "content_scripts": [
+      {
+        "matches": ["*://*.foodblogdomain.com/*"],
+        "js": ["contentScript.js"]
+      }
+    ],
+    "icons": {
+      "16": "icons/icon24.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  }
+  
