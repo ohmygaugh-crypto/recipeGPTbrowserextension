@@ -2,15 +2,25 @@
 document.getElementById('scrapeURL').addEventListener('click', function() {
   const url = document.getElementById('urlInput').value;
   console.log("Scrape URL button clicked. URL:", url);
-
   chrome.runtime.sendMessage({ action: "scrapeURL", url: url });
 });
 
 // Event listener for the Scrape Current Page button
 document.getElementById('scrapeCurrentPage').addEventListener('click', function() {
-  console.log("Scrape current page button clicked.");
-
+  console.log("Scrape current page button clicked."); // This is the added console log
   chrome.runtime.sendMessage({ action: "scrapeCurrentPage" });
+});
+
+document.getElementById('saveKey').addEventListener('click', function() {
+  const userKey = document.getElementById('openaiKeyInput').value;
+  if (userKey) { // Check if the input isn't empty
+      chrome.storage.local.set({openai_key: userKey}, function() {
+          console.log('API Key saved');
+          alert('API Key saved successfully!'); // Provide feedback to the user
+      });
+  } else {
+      alert('Please enter a valid API Key.');
+  }
 });
 
 // Message listener to receive messages from the background script
