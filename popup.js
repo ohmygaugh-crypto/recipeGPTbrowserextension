@@ -1,17 +1,25 @@
 // Event listener for the Scrape URL button
 document.getElementById('scrapeURL').addEventListener('click', function() {
   const url = document.getElementById('urlInput').value;
+  console.log("Scrape URL button clicked. URL:", url);
+
   chrome.runtime.sendMessage({ action: "scrapeURL", url: url });
 });
 
 // Event listener for the Scrape Current Page button
 document.getElementById('scrapeCurrentPage').addEventListener('click', function() {
+  console.log("Scrape current page button clicked.");
+
   chrome.runtime.sendMessage({ action: "scrapeCurrentPage" });
 });
 
 // Message listener to receive messages from the background script
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  console.log("Received message in popup:", message);
+  
     if (message.recipe) {
+      console.log("Sending scraped recipe to iframe:", message.recipe);
+
       // Display the scraped content in the textarea
       document.getElementById('scrapedContent').value = message.recipe;
 

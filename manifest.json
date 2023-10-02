@@ -3,7 +3,11 @@
     "name": "Recipe Extractor",
     "version": "1.0",
     "description": "Extracts recipes from food blogs and sends to PWA.",
-    "permissions": ["activeTab", "storage"],
+    "permissions": ["activeTab", "storage", "tabs", "<all_urls>"],
+    "host_permissions": [
+      "*://api.openai.com/*",
+      "*://sethspwa.netlify.app/*"
+    ],
     "background": {
       "service_worker": "background.js"
     },
@@ -15,8 +19,9 @@
     },
     "content_scripts": [
       {
-        "matches": ["*://*.foodblogdomain.com/*"],
-        "js": ["contentScript.js"]
+        "matches": ["<all_urls>"],
+            "js": ["contentScript.js"],
+            "run_at": "document_idle"
       }
     ],
     "icons": {
