@@ -2,29 +2,43 @@ console.log("Background script is running.");
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   console.log("Received message in background:", message);
-  
-  if (message.recipe) {
-    console.log("Sending recipe to OpenAI for processing:", message.recipe);
-    
-    processWithOpenAI(message.recipe).then((result) => {
-      console.log("Processed result from OpenAI:", result); 
-      // Send the processed result to the popup (if needed)
-      chrome.runtime.sendMessage({ processedRecipe: result });
-    }).catch(error => {
-      console.error("Error processing with OpenAI:", error);
-    });
+
+  if (message.action === 'entirePageContent') {
+    console.log("Received request to process entire page content.");
+    const pageContent = message.content;
+
+    // Process the page content with OpenAI
+    processWithOpenAI(pageContent)
+      .then((result) => {
+        console.log("Processed result from OpenAI:", result);
+        // Send the processed result to the popup
+        chrome.runtime.sendMessage({ processedRecipe: result });
+      })
+      .catch(error => {
+        console.error("Error processing with OpenAI:", error);
+      });
   }
-  return true; // This will keep the message channel open until `sendResponse` is executed
 });
 
 async function processWithOpenAI(recipeData) {
   console.log("Starting request to OpenAI with data:", recipeData);
   const openaiEndpoint = 'https://api.openai.com/v1/engines/davinci/completions';
-  const openaiApiKey = 'YOUR_OPENAI_API_KEY'; // This direct storage is not recommended due to security reasons.
+
+  // Retrieve OpenAI API key from local storage
+  const openaiApiKey = await getOpenAiApiKey();
+  
+  if (!openaiApiKey) {
+    console.error("OpenAI API key not set.");
+    return;
+  }
 
   const requestBody = {
-    prompt: `Process this recipe: ${recipeData}`,
-    max_tokens: 150
+    prompt: `Given the following webpage content, extract and summarize the main cooking recipe:
+
+${recipeData}
+
+End of content. Please provide a clear and concise recipe summary stating just the ingredients and cooking instructions.`,
+    max_tokens: 500  // Adjust max tokens based on expected response length
   };
 
   let response;
@@ -49,4 +63,16 @@ async function processWithOpenAI(recipeData) {
 
   const data = await response.json();
   return data.choices[0]?.text || ''; // Returning the processed result.
+}
+
+function getOpenAiApiKey() {
+  return new Promise((resolve, reject) => {
+    chrome.storage.local.get(['openai_key'], function(result) {
+      if (result.openai_key) {
+        resolve(result.openai_key);
+      } else {
+        reject("API Key not found");
+      }
+    });
+  });
 }

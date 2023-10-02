@@ -7,47 +7,51 @@ document.getElementById('scrapeURL').addEventListener('click', function() {
 
 // Event listener for the Scrape Current Page button
 document.getElementById('scrapeCurrentPage').addEventListener('click', function() {
-  console.log("Scrape current page button clicked."); // This is the added console log
-  chrome.runtime.sendMessage({ action: "scrapeCurrentPage" });
+  console.log("Scrape current page button clicked.");
+  chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
+    chrome.tabs.sendMessage(tabs[0].id, { action: "scrapeEntirePage" });
+  });
 });
 
+// Event listener for the Save API Key button
 document.getElementById('saveKey').addEventListener('click', function() {
   const userKey = document.getElementById('openaiKeyInput').value;
   if (userKey) { // Check if the input isn't empty
-      chrome.storage.local.set({openai_key: userKey}, function() {
-          console.log('API Key saved');
-          alert('API Key saved successfully!'); // Provide feedback to the user
-      });
+    chrome.storage.local.set({openai_key: userKey}, function() {
+      console.log('API Key saved');
+      alert('API Key saved successfully!'); // Provide feedback to the user
+    });
   } else {
-      alert('Please enter a valid API Key.');
+    alert('Please enter a valid API Key.');
   }
 });
 
-// Message listener to receive messages from the background script
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  console.log("Received message in popup:", message);
-  
-    if (message.recipe) {
-      console.log("Sending scraped recipe to iframe:", message.recipe);
-
-      // Display the scraped content in the textarea
-      document.getElementById('scrapedContent').value = message.recipe;
-
-      // Send the content to your PWA
-      let iframeWindow = document.getElementById('iframe').contentWindow;
-      iframeWindow.postMessage(message.recipe, 'https://sethspwa.netlify.app/');
+// When the popup is loaded, check for the stored API key
+chrome.storage.local.get('openai_key', function(data) {
+    if (data.openai_key) {
+        document.getElementById('openaiKeyInput').value = data.openai_key;
     }
 });
 
-// Logic to handle the message from background.js and update the popup accordingly
+// Message listener to receive messages from the background script and update the popup
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if (message.processedRecipe) {
-      const processedRecipeText = message.processedRecipe;
-      // Display it in the popup, or send it to the PWA, or do anything else you need
-      document.getElementById('scrapedContent').value = processedRecipeText;
+  if (message.recipe) {
+    console.log("Sending scraped recipe to iframe:", message.recipe);
 
-      // Sending it to the PWA
-      let iframeWindow = document.getElementById('iframe').contentWindow;
-      iframeWindow.postMessage(processedRecipeText, 'https://sethspwa.netlify.app/');
-    }
+    // Display the scraped content in the textarea
+    document.getElementById('scrapedContent').value = message.recipe;
+
+    // Send the content to your PWA
+    let iframeWindow = document.getElementById('iframe').contentWindow;
+    iframeWindow.postMessage(message.recipe, 'https://sethspwa.netlify.app/');
+  } else if (message.processedRecipe) {
+    const processedRecipeText = message.processedRecipe;
+
+    // Display it in the popup
+    document.getElementById('scrapedContent').value = processedRecipeText;
+
+    // Sending it to the PWA
+    let iframeWindow = document.getElementById('iframe').contentWindow;
+    iframeWindow.postMessage(processedRecipeText, 'https://sethspwa.netlify.app/');
+  }
 });
